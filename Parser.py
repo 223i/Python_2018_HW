@@ -71,7 +71,7 @@ class Constituent:
 
 
 grammar = {('NP', 'VP'): ['S'], ('Nnom'): ['NP'], ('Nacc'): ['NP'],
-           ('Nnom', 'Ngen'): ['NP'], ('V', 'NP'): ['VP']}
+           ('Nnom', 'Ngen'): ['NP'], ('Vpast', 'NP'): ['VP']}
 grammar_dictionary = {'мама': 'Nnom', 'мыла': 'Vpast', 'раму': 'Nacc'}
 
 
@@ -112,26 +112,33 @@ if __name__ == '__main__':
 
 class Parser:
 
-    right_border_constituent = {}
-    identity_constituent = {}
+    def __init__(self):
+        self.right_border_constituent = {}
+        self.identity_constituent = {}
 
     def add(self, constituent):
-        if (constituent.start, constituent.end, constituent.tag) not in self.identity_constituent:
+        identity = (constituent.start, constituent.end, constituent.tag)
+        print(identity)
+        if identity not in self.identity_constituent.keys():
             self.right_border_constituent[constituent.end] = constituent
-            self.identity_constituent[constituent.start, constituent.end, constituent.tag] = constituent
+            self.identity_constituent[(constituent.start, constituent.end, constituent.tag)] = constituent
             return constituent
         else:
-            constituent.structures.extend(constituent)
-            return 'none'
+            old_constituent = self.identity_constituent[identity]
+            old_constituent[identity] = structures.extend(constituent.structures)
 
     def bind(self, c):
-        tok = self.right_border_constituent[c.start-1]
-        if (tok.tag, c.tag) in grammar:
-            self.put(grammar[(n.tag, c.tag)])
+        for n in self.right_border_constituent.values():
+            if n.end <= c.start-1:
+                #for (n.tag, c.tag) in grammar.keys():
+                for i in grammar[(n.tag, c.tag)]:
+                    if (n.tag, c.tag) in grammar.keys():
+                        t = Constituent(i, n.start, c.end, [(n.tag, c.tag)])
+                        self.put(t)
 
     def put(self, constituent):
         result = self.add(constituent)
-        if result != 'none' and constituent.start != 0:
+        if result != None and constituent.start != 0:
             self.bind(constituent)
 
     def parse(self, string):
