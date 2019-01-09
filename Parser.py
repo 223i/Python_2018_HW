@@ -125,10 +125,9 @@ class Parser:
             return 'none'
 
     def bind(self, c):
-        n = self.right_border_constituent[c.start]
-        for n in right_border_constituent:
-            if (n.tag, c.tag) in grammar:
-                self.put(grammar[(n.tag, c.tag)])
+        tok = self.right_border_constituent[c.start-1]
+        if (tok.tag, c.tag) in grammar:
+            self.put(grammar[(n.tag, c.tag)])
 
     def put(self, constituent):
         result = self.add(constituent)
@@ -142,14 +141,14 @@ class Parser:
         tokens_for_work = Morphoanalyzer().dumm_morphoanalyzer(string)
 
         for token in tokens_for_work:
-            token.start = token.position
-            token.end = token.position + len(token.string_representation)
+            token_start = token.position
+            token_end = token.position + len(token.string_representation)
             tag = token.tag
             structures = ()
-            c = Constituent(tag, token.start, token.end, structures)
+            c = Constituent(tag, token_start, token_end, structures)
             self.put(c)
 
 
 if __name__ == '__main__':
-    text = 'Мама мыла раму'
+    text = 'мама мыла раму'
     lst = Parser().parse(text)
