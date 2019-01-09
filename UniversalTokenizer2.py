@@ -80,14 +80,15 @@ class UniversalTokenizer:
             type = UniversalTokenizer().type_define(symbol)
             if idSymbol == 0:
                 start_token = idSymbol
-            elif UniversalTokenizer().type_define(input[idSymbol - 1]) == type:
-                continue
-            elif UniversalTokenizer().type_define(input[idSymbol-1]) != type:
+                previous_type = type
+
+            elif type != previous_type:
                 tokens.append(Token(UniversalTokenizer().type_define
                                     (input[idSymbol - 1]),
                                     start_token, input[start_token:idSymbol]))
                 start_token = idSymbol
-
+                previous_type = type
+                
         """ This condition checks the last symbol and writes down 
         last token and his position"""
 
