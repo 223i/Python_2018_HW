@@ -143,7 +143,7 @@ class Parser:
 
         for token in tokens_for_work:
             token.start = token.position
-            token.end = token.position + len(token.string_representation) + 1
+            token.end = token.position + len(token.string_representation)
             tag = token.tag
             structures = ()
             c = Constituent(tag, token.start, token.end, structures)
