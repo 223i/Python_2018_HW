@@ -118,22 +118,21 @@ class Parser:
     def add(self, constituent):
         if (constituent.start, constituent.end, constituent.tag) not in self.identity_constituent:
             self.right_border_constituent[constituent.end] = constituent
-            self.identity_constituent[constituent.tag, constituent.start, constituent.end] = constituent
+            self.identity_constituent[constituent.start, constituent.end, constituent.tag] = constituent
             return constituent
         else:
             constituent.structures.extend(constituent)
             return 'none'
 
     def bind(self, c):
-        i = c.start
-        n = self.right_border_constituent[i]
+        n = self.right_border_constituent[c.start]
         for n in right_border_constituent:
             if (n.tag, c.tag) in grammar:
-                put(grammar[(n.tag, c.tag)])
+                self.put(grammar[(n.tag, c.tag)])
 
     def put(self, constituent):
         result = self.add(constituent)
-        if result != 'none':
+        if result != 'none' and constituent.start != 0:
             self.bind(constituent)
 
     def parse(self, string):
@@ -144,15 +143,13 @@ class Parser:
 
         for token in tokens_for_work:
             token.start = token.position
-            token.end = token.position + len(token.string_representation)
+            token.end = token.position + len(token.string_representation) + 1
             tag = token.tag
             structures = ()
-            c = Constituent(token.start, token.end, tag, structures)
+            c = Constituent(tag, token.start, token.end, structures)
             self.put(c)
 
 
 if __name__ == '__main__':
     text = 'Мама мыла раму'
     lst = Parser().parse(text)
-    for constituent in lst:
-        print(constituent)
