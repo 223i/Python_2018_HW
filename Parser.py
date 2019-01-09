@@ -1,4 +1,4 @@
-"This module parses test and returns possible syntax tree-options"""
+"This module parses text and returns possible syntax tree-options"""
 
 class Token:
     """ Form new data-type "token" with 2 parameters - string_representation
@@ -11,12 +11,10 @@ class Token:
 
 class Tokenizer:
     """ This class provides a method for text-tokenization.
-
        For the text submitted the class return the result of tokenization
        as a list of tokens.
        For instance: The string "I am Groot" will be tokenized by
        the following manner:
-
        [0 I
        2 am
        5 Groot]
@@ -25,7 +23,6 @@ class Tokenizer:
     def tokenize(self, string):
         """ Read the string, extract the alphabetical sequences and their
         starting positions and return them in a list of tokens.
-
         :param string: input line, the appropriate type - string
         :return: list of tokens
         """
@@ -75,12 +72,11 @@ class Constituent:
 
 grammar = {('NP', 'VP'): ['S'], ('Nnom'): ['NP'], ('Nacc'): ['NP'],
            ('Nnom', 'Ngen'): ['NP'], ('V', 'NP'): ['VP']}
-grammar_dictionary = {'мама': 'Nnom', 'мыла': 'Vpast',
-                      'мыла': 'Ngen', 'раму': 'Nacc'}
+grammar_dictionary = {'мама': 'Nnom', 'мыла': 'Vpast', 'раму': 'Nacc'}
 
 
 class TokenWithTag:
-    """ Reorganizes data-type "token" bz means adding a parameter - tag """
+    """ Reorganizes data-type "token" it means adding a parameter - tag """
 
     def __init__(self, string_representation, position, tag):
         self.string_representation = string_representation
@@ -90,7 +86,6 @@ class TokenWithTag:
 
 class Morphoanalyzer:  # tokenize and add POS-tags
     """ This class provides a method for morphological analysis.
-
        For the text submitted the class return the result of morphological
         analysis as a list of tokens. """
 
@@ -106,7 +101,7 @@ class Morphoanalyzer:  # tokenize and add POS-tags
         return tokens_with_tags
 
 
-""""
+"""
 #check the result of morphoanalysis
 if __name__ == '__main__':
     lst = Morphoanalyzer().dumm_morphoanalyzer("мама мыла раму")
@@ -117,36 +112,43 @@ if __name__ == '__main__':
 
 class Parser:
 
+    right_border_constituent = {}
+    identity_constituent = {}
+
+    def add(self, constituent):
+        if (constituent.start, constituent.end, constituent.tag) not in self.identity_constituent:
+            self.right_border_constituent[constituent.end] = constituent
+            self.identity_constituent[constituent.tag, constituent.start, constituent.end] = constituent
+            return constituent
+        else:
+            constituent.structures.extend(constituent)
+            return 'none'
+
+    def bind(self, c):
+        i = c.start
+        n = self.right_border_constituent[i]
+        for n in right_border_constituent:
+            if (n.tag, c.tag) in grammar:
+                put(grammar[(n.tag, c.tag)])
+
+    def put(self, constituent):
+        result = self.add(constituent)
+        if result != 'none':
+            self.bind(constituent)
+
     def parse(self, string):
         # получаем список с токенами у которых известна
         # начальная позиция, сам токен,и его частеречная принадлежность.
         # Токены указаны в словаре в той же последовательности, в какой идут в тексте
         tokens_for_work = Morphoanalyzer().dumm_morphoanalyzer(string)
 
-        #by_end = {}
-        id_x = 0
-        constituents = []
         for token in tokens_for_work:
-            if tokens_for_work[0] == token: #проверяем первый ли токен
-                if token.tag in (grammar or grammar_dictionary):
-                    Constituent.start = token.position
-                    Constituent.end = token.position + len(token.string_representation)
-                    Constituent.tag = token.tag
-                    Constituent.structures = []
-                    Constituent.structures.append(Constituent.tag)  # тег запивается в атрибут конституента
-                    id_x = 0                                 #Заоминаем предыд.конституент в списке
-                    constituents.append((Constituent.tag, string[Constituent.start:Constituent.end]))
-
-            else:
-                if (constituents[id_x].tag, token.tag) in grammar:  # если предыдущий тег конституента и тег токена есть в грамматике
-                    Constituent.tag = grammar[(constituents[id_x].tag, token.tag)]  # достаем из грамматики тэг конституента
-                    Constituent.start = constituents[id_x].start
-                    Constituent.end = token.position + len(token.string_representation)
-                    Constituent.structures.append(Constituent.tag)  # тег запивается в атрибут конституента
-                    constituents.append(Constituent.tag, string[Constituent.start:Constituent.end])
-                    id_x += 1  # Запоминаем конец конституента
-
-        return constituents
+            token.start = token.position
+            token.end = token.position + len(token.string_representation)
+            tag = token.tag
+            structures = ()
+            c = Constituent(token.start, token.end, tag, structures)
+            self.put(c)
 
 
 if __name__ == '__main__':
