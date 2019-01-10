@@ -76,7 +76,7 @@ class Parser:
             n = self.right_border_constituent.get(end_of_previous)
             if (n.tag, c.tag) in grammar:
                 for i in grammar[(n.tag, c.tag)]:
-                    t = Constituent(i, n.start, c.end, [(n.tag, c.tag)])
+                    t = Constituent(i, n.start, c.end, [(n, c)])
                     self.put(t)
 
     def put(self, constituent):
