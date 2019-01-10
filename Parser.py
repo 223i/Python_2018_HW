@@ -87,14 +87,13 @@ class Parser:
          of constituent are in the dictionary 'identity_constituent'. For
          those cases, when it is, structures of constituent are updated.
          Otherwise, constituent is added in both dictionaries and is returned.
-
         :param constituent: submitted constituent
         :return: constituent, that is added in dictionaries
         """
 
         identity = (constituent.start, constituent.end, constituent.tag)
         if identity not in self.identity_constituent.keys():
-            self.right_border_constituent[constituent.end] = constituent
+            self.right_border_constituent[constituent.end] = (constituent)
             self.identity_constituent[(constituent.start, constituent.end,
                                        constituent.tag)] = constituent
             return constituent
@@ -108,47 +107,50 @@ class Parser:
          constituent and constituent submitted are in grammar. For each
          case, when they are, method builds new constituent and submit
          it to "put()" function.
-
         :param c: submitted constituent
         """
 
         end_of_previous = self.right_border_constituent[c.start-1]
-        for end_of_previous in self.right_border_constituent:
-            n = self.right_border_constituent.get(end_of_previous)
+        for n in end_of_previous:
             if (n.tag, c.tag) in grammar:
                 for i in grammar[(n.tag, c.tag)]:
                     t = Constituent(i, n.start, c.end, [(n, c)])
+                    return t
                     self.put(t)
+                    
+
 
     def put(self, constituent):
         """This method becomes constituent and calls the method 'add()' for it.
         If returned value is not None, it calls the method 'bind()' for
          constituent.
-
         :param constituent:submitted constituent
         """
         result = self.add(constituent)
         if result != None and constituent.start != 0:
-            self.bind(constituent)
+            for_return = self.bind(constituent)
+            return  result, for_return
 
     def parse(self, string):
         """This method becomes string, provides morphoanalysis for it. Method creates
         constituent for each morphoanalyzed and calls  "put()" function for them.
-
         :param string: input string
         """
 
         tokens_for_work = Morphoanalyzer().dumm_morphoanalyzer(string)
-
+        constituents = []
         for token in tokens_for_work:
             token_start = token.position
             token_end = token.position + len(token.string_representation)
             tag = token.tag
             structures = ()
             c = Constituent(tag, token_start, token_end, structures)
-            self.put(c)
+            a = self.put(c)
+            constituents = constituents.extend(a)
+        return constituents
 
 
 if __name__ == '__main__':
     text = 'мама мыла раму'
-    lst = Parser().parse(text)
+lst = Parser().parse(text)
+
