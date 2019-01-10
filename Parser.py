@@ -126,11 +126,17 @@ class Parser:
             old_constituent = self.identity_constituent[identity]
             old_constituent[identity] = structures.extend(constituent.structures)
 
-    def bind(self, c):
+        def bind(self, c):
         end_of_previous = self.right_border_constituent[c.start-1]
         for end_of_previous in self.right_border_constituent:
             n = self.right_border_constituent.get(end_of_previous)
+            if (n.tag) in grammar:
+                for i in grammar[(n.tag)]:
+                    t = Constituent(i, n.start, c.end, [(n.tag)])
+                    print(i, n.start, n.end)
+                    self.put(t)
             if (n.tag, c.tag) in grammar:
+                print(n.tag, c.tag)
                 for i in grammar[(n.tag, c.tag)]:
                     t = Constituent(i, n.start, c.end, [(n.tag, c.tag)])
                     self.put(t)
