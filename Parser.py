@@ -146,7 +146,7 @@ class Parser:
             structures = ()
             c = Constituent(tag, token_start, token_end, structures)
             a = self.put(c)
-            constituents = constituents.extend(a)
+            constituents.extend(a)
         return constituents
 
 
