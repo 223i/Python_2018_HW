@@ -102,7 +102,7 @@ class Parser:
             old_constituent[identity] = structures.extend(
                 constituent.structures)
 
-    def bind(self, c):
+   def bind(self, c):
         """For the constituent submitted the method checks whether previous
          constituent and constituent submitted are in grammar. For each
          case, when they are, method builds new constituent and submit
@@ -110,13 +110,15 @@ class Parser:
         :param c: submitted constituent
         """
 
-        end_of_previous = self.right_border_constituent[c.start-1]
+        end_of_previous = self.right_border_constituent[c.start - 1]
+        constituents_t = []
         for n in end_of_previous:
             if (n.tag, c.tag) in grammar:
                 for i in grammar[(n.tag, c.tag)]:
                     t = Constituent(i, n.start, c.end, [(n, c)])
-                    return t
+                    constituents_t.append(t)
                     self.put(t)
+                    return constituents_t
                     
 
 
