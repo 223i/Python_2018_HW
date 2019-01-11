@@ -92,15 +92,18 @@ class Parser:
         """
 
         identity = (constituent.start, constituent.end, constituent.tag)
-        if identity not in self.identity_constituent.keys():
-            self.right_border_constituent[constituent.end] = (constituent)
-            self.identity_constituent[(constituent.start, constituent.end,
-                                       constituent.tag)] = constituent
-            return constituent
+        if identity not in self.identity_constituent:
+            if constituent.end not in self.right_border_constituent:
+                self.right_border_constituent[constituent.end] = [constituent]
+                self.identity_constituent[(constituent.start, constituent.end,
+                                           constituent.tag)] = constituent
+            else:
+                self.right_border_constituent[constituent.end].append(constituent)
+                self.identity_constituent[(constituent.start, constituent.end,
+                                           constituent.tag)] = constituent
         else:
             old_constituent = self.identity_constituent[identity]
-            old_constituent[identity] = structures.extend(
-                constituent.structures)
+            old_constituent[identity] = structures.extend(constituent.structures)
 
    def bind(self, c):
         """For the constituent submitted the method checks whether previous
