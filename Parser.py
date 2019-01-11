@@ -101,6 +101,7 @@ class Parser:
                 self.right_border_constituent[constituent.end].append(constituent)
                 self.identity_constituent[(constituent.start, constituent.end,
                                            constituent.tag)] = constituent
+            return constituent
         else:
             old_constituent = self.identity_constituent[identity]
             old_constituent[identity] = structures.extend(constituent.structures)
@@ -131,10 +132,14 @@ class Parser:
          constituent.
         :param constituent:submitted constituent
         """
+
+        returned_constituents = []
         result = self.add(constituent)
+        returned_constituents.append(result)
         if result != None and constituent.start != 0:
             for_return = self.bind(constituent)
-            return  result, for_return
+            returned_constituents.append(for_return)
+        return returned_constituents
 
     def parse(self, string):
         """This method becomes string, provides morphoanalysis for it. Method creates
