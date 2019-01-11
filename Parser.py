@@ -122,7 +122,7 @@ class Parser:
                     t = Constituent(i, n.start, c.end, [(n, c)])
                     constituents_t.append(t)
                     self.put(t)
-                    return constituents_t
+                return constituents_t
                     
 
 
